@@ -1,16 +1,18 @@
 var pictionary = function() {
     var socket = io();
     var canvas, context;
+    var amDrawer = null;
 
     var draw = function(position) {
-        console.log("in draw");
-        context.beginPath();
-        context.arc(position.x, position.y,
-                         6, 0, 2 * Math.PI);
-        context.fill();
+      console.log("in draw");
+      context.beginPath();
+      context.arc(position.x, position.y,
+                     6, 0, 2 * Math.PI);
+      context.fill();
     };
 
     var drawing = false;
+    var guessElement = $("#guess");
     var guessBox = $('#guess input');
     var topMessage = $('#top-message');
   
@@ -19,9 +21,15 @@ var pictionary = function() {
       console.log("hit"); 
       guessesDisplay.append("<p>"+guess+"</p>");
     };
-    var designateDrawer = function(designated){
-      guessBox.css("display","none");
-      topMessage.append("<h2>You are the Drawer</h2>"); 
+    var tapDrawer = function(wasTapped){
+      if(wasTapped){
+        topMessage.append("<h2>Start drawing!</h2>");
+        amDrawer = true;
+      }
+      else{ 
+        guessElement.css("display","block");
+        amDrawer = false;
+      }
     }
     var onKeyDown = function(event) {
         if (event.keyCode != 13) { // Enter
@@ -44,7 +52,7 @@ var pictionary = function() {
         var offset = canvas.offset();
         var position = {x: event.pageX - offset.left,
                         y: event.pageY - offset.top};
-        if(drawing){
+        if(drawing && amDrawer){
           draw(position);
           socket.emit('draw', position); 
         }
@@ -61,7 +69,7 @@ var pictionary = function() {
     
     socket.on('guess', displayGuess);   
 
-    socket.on("designate",designateDrawer);
+    socket.on("tap",tapDrawer);
 
 };
 

@@ -7,9 +7,12 @@ app.use(express.static('public'));
 
 var server = http.Server(app);
 var io = socket_io(server);
+var tapDrawer = true;
 
 debugger
 io.on("connection", function(socket){
+  socket.emit('tap',tapDrawer);
+  tapDrawer = false;
   socket.on("draw", function(position){
     socket.broadcast.emit('draw', position);
   });
