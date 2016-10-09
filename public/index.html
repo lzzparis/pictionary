@@ -21,12 +21,16 @@ h1 {
     padding: 20px;
     text-align: center;
 }
+h2 span{
+  color:purple;
+  font-style:italic;
+}
 
 #top-message {
     text-align: center;
     padding: 10px;
 }
-#guess{
+#guess, #instructions, #results{
   display:none;
 }
 
@@ -51,6 +55,8 @@ canvas {
       <div id="guess">
         Make a guess: <input type="text">
       </div>
+      <div id="instructions"></div>
+      <div id="results"></div>
     </div>
     <canvas id="canvas"></canvas>
     <div id="guesses-display"></div>

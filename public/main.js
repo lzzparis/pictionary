@@ -1,7 +1,12 @@
+var WORDS = [
+    "word", "letter", "number", "person", "pen", "class", "people", "sound", "water", "side", "place", "man", "men", "woman", "women", "boy", "girl", "year", "day", "week", "month", "name", "sentence", "line", "air", "land", "home", "hand", "house", "picture", "animal", "mother", "father", "brother", "sister", "world", "head", "page", "country", "question", "answer", "school", "plant", "food", "sun", "state", "eye", "city", "tree", "farm", "story", "sea", "night", "day", "life", "north", "south", "east", "west", "child", "children", "example", "paper", "music", "river", "car", "foot", "feet", "book", "science", "room", "friend", "idea", "fish", "mountain", "horse", "watch", "color", "face", "wood", "list", "bird", "body", "dog", "family", "song", "door", "product", "wind", "ship", "area", "rock", "order", "fire", "problem", "piece", "top", "bottom", "king", "space"
+];
+
 var pictionary = function() {
     var socket = io();
     var canvas, context;
     var amDrawer = null;
+    var word = null;
 
     var draw = function(position) {
       console.log("in draw");
@@ -14,7 +19,8 @@ var pictionary = function() {
     var drawing = false;
     var guessElement = $("#guess");
     var guessBox = $('#guess input');
-    var topMessage = $('#top-message');
+    var instructions = $('#instructions');
+    var results = $('#results');
   
     var guessesDisplay = $('#guesses-display');
     var displayGuess = function(guess){
@@ -22,8 +28,13 @@ var pictionary = function() {
       guessesDisplay.append("<p>"+guess+"</p>");
     };
     var tapDrawer = function(wasTapped){
+      var wordIndex = Math.floor(Math.random()*(WORDS.length));
+      word = WORDS[wordIndex];
+      console.log(word, wordIndex);
       if(wasTapped){
-        topMessage.append("<h2>Start drawing!</h2>");
+        instructions.html("<h2>Your word is <span>"+word+"</span>. Start drawing!</h2>");
+        instructions.css("display","block");
+        socket.emit('storeWord',word);
         amDrawer = true;
       }
       else{ 
@@ -64,12 +75,31 @@ var pictionary = function() {
       drawing = false;
     });
 
+    var displayResults = function(){
+      guessElement.css("display","none");  
+      instructions.css("display","none");  
+      results.css("display","block");  
+
+    };
+
+    var iWon = function(correctWord){
+      results.html("<h2>YOU WON! The correct word is <span>"+correctWord+"</span></h2>");
+      displayResults();
+    };
+
+    var gameOver = function(correctWord){
+      results.html("<h2>Someone won! The correct word is <span>"+correctWord+"</span></h2>");
+      displayResults();
+  };
 
     socket.on('draw',draw);
     
     socket.on('guess', displayGuess);   
 
     socket.on("tap",tapDrawer);
+
+    socket.on("won",iWon);
+    socket.on("gameOver",gameOver);
 
 };
 
