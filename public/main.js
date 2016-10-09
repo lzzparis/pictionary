@@ -11,6 +11,30 @@ var pictionary = function() {
     };
 
     var drawing = false;
+    var guessBox = $('#guess input');
+    var topMessage = $('#top-message');
+  
+    var guessesDisplay = $('#guesses-display');
+    var displayGuess = function(guess){
+      console.log("hit"); 
+      guessesDisplay.append("<p>"+guess+"</p>");
+    };
+    var designateDrawer = function(designated){
+      guessBox.css("display","none");
+      topMessage.append("<h2>You are the Drawer</h2>"); 
+    }
+    var onKeyDown = function(event) {
+        if (event.keyCode != 13) { // Enter
+            return;
+        }
+        var guess = guessBox.val();
+        console.log(guess);
+        guessBox.val('');
+        socket.emit('guess',guess);
+        displayGuess(guess);
+    };
+    guessBox.on('keydown', onKeyDown);
+
 
     canvas = $('canvas');
     context = canvas[0].getContext('2d');
@@ -34,28 +58,10 @@ var pictionary = function() {
 
 
     socket.on('draw',draw);
-    var guessBox;
     
-    var onKeyDown = function(event) {
-        if (event.keyCode != 13) { // Enter
-            return;
-        }
-        var guess = guessBox.val();
-        console.log(guess);
-        guessBox.val('');
-        socket.emit('guess',guess);
-    };
     socket.on('guess', displayGuess);   
 
-    guessBox = $('#guess input');
-    guessBox.on('keydown', onKeyDown);
-  
-    guessesDisplay = $('#guesses-display');
-
-    var displayGuess = function(guess){
-      console.log("hit"); 
-      guessesDisplay.append("<p>"+guess+"</p>");
-    };
+    socket.on("designate",designateDrawer);
 
 };
 
